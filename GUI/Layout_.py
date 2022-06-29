@@ -21,13 +21,6 @@ def Estructura():
         FilesExp,
         [sg.Button("Open"), [sg.Button("Guardar Archivo", key='btnSave', visible=False)]]
     ]
-    # tabla1 = sg.Table(
-    #     headings = ['Nombres:'],
-    #     values = table_content,
-    #     expand_x = True,
-    #     hide_vertical_scroll = True,
-    #     key = 'tbl_Nombres'
-    # )
     tabla2 = sg.Table(
         headings = ['ID1:','Nombre','ID2:','Nombre_2'],
         values = table_content,
@@ -37,7 +30,7 @@ def Estructura():
     )
     
     layout = [
-        [columna1], #[tabla1],
+        [columna1],
         [tabla2]
     ]
     return layout

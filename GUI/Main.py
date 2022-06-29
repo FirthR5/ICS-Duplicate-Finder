@@ -2,8 +2,8 @@ from Layout_ import *
 import PySimpleGUI as sg
 
 import sys, os
-sys.path.append('../Home/Funcionalidad')
-from Index import *#ConvertFileToList, ListaSinCopias, CalendarioHacer,ExtraccionDatos,GetCopies
+sys.path.append('../ICS-Duplicate-Finder/Funcionalidad')
+from Index import *
 
 window = sg.Window('Merge Calendar', Estructura())
 
@@ -22,13 +22,12 @@ while True:
             UID_tf2 = GetCopies(txtF_1, txtF_2)
             lista = MergeList(txtF_1,txtF_2,UID_tf2)
             
-            nuevo, extract_data, LeString = List_WithoutDuplicateNames(lista)
-             
-            #window['tbl_Nombres'].update(lista)
-            window['tbl_Copias'].update(LeString)
+            register, Lol = List_WithoutDuplicateNames(lista)
+            
+            window['tbl_Copias'].update(Lol)
             window['btnSave'].update(visible=True)
     if event == 'btnSave':
-        CalendarioHacer(nuevo)
+        CalendarioHacer(register)
         
 window.close()
 

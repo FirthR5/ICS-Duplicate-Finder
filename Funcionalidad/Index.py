@@ -18,17 +18,14 @@ def GetCopies(txtF_1, txtF_2):
     
 def MergeList(FileLines_1, txtF_2, UID_tf2):
     lineas2 = ListaElementos(txtF_2, UID_tf2)
-    FileLines_1.extend(lineas2)
+    FileLines_1.extend(lineas2)#ToDo: Ver si hay fallo
     return FileLines_1
     
 def List_WithoutDuplicateNames(lineas):
-    extract_data = Leer_Datos(lineas)
     
-    LeIndexes, LeString = Clones(extract_data)
-    Indices_Copia = ListaCopias(LeIndexes, extract_data)
-        
-    nuevo = Eliminar_Copias(lineas, Indices_Copia)
-    return nuevo, extract_data, LeString
+    lineas, VariableEquis = Capture_Clones(lineas)
+    
+    return lineas, VariableEquis 
    
     
 def CalendarioHacer(nuevo):

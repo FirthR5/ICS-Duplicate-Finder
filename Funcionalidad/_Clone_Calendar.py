@@ -7,131 +7,88 @@ def FileToList(textfile):
     Bool_Evento = False
     tempList = []
     ReturnList = []
-    
+    TempTipo=''
     for line in textfile:
         match line:
             case 'END:VEVENT\n':
                 Bool_Evento = False 
-                ReturnList.append(tempList)
-                tempList =[]
+                ReturnList.append(TempVal)
                 continue
             case 'BEGIN:VEVENT\n':
+                TempVal={}
                 Bool_Evento = True
+                TempTipo= ''
                 continue
         if Bool_Evento:
-            tempList.append(line)
+            cadena = line.split(':', 1)
+            if len(cadena) is 1:
+                TempVal[TempTipo] += cadena[0].rstrip("\n")
+                continue
+                
+                        
+            Tipo = cadena[0]
+            Valor = cadena[1].rstrip("\n")
+            TempVal[Tipo] = Valor
+            TempTipo = Tipo
+            
+            
     return ReturnList
 
 def Leer_IDs(register):
     UID_tf1 = []
     for lines in register:
-        for line in lines:
-            if line.rpartition(':')[0] == "UID":
-                UID_tf1.append(line.rpartition(':')[2])
+        UID_tf1.append(lines['UID'])
     return UID_tf1
 
 def ListaElementos(register, UID):
-    tempList = []
-    ReturnList = []
-    for lines in register:
-        iteration = 0
-        Bin_L = True
-        for line in lines:
-            iteration +=1
-            LineType = line.rpartition(':')[0]
-            
-            if LineType == "UID":
-                valz = line.rpartition(':')[2]
-                
-                if valz not in UID: 
-                    Bin_L = False
-                    tempList=[]
-                else:
-                    UID.pop()
-                    
-            if Bin_L:
-                tempList.append(line)
-                if iteration>= len(lines):
-                    ReturnList.append(tempList) 
-                
+    ReturnList = [ lines for lines in register if lines['UID'] in UID ]
     return ReturnList
-
-def Leer_Datos(register):
-    extract_data = {
-        "UID": [],
-        "SUMMARY": [],
-        "DTSTAMP": []        
-    }
-    for lines in register:
-        for line in lines:
-            valor = line.rpartition(':')[0]
-            match valor:
-                case "SUMMARY":
-                    extract_data["SUMMARY"].append(line.rpartition(':')[2])
-                case "DTSTAMP":
-                    extract_data["DTSTAMP"].append(line.rpartition(':')[2])
-                case "UID":
-                    extract_data["UID"].append(line.rpartition(':')[2])
-    return extract_data   
+        
+        
 
 def similar(a, b):
     s = SequenceMatcher(None, a, b)
     return s.ratio()
 
-def Clones(extract_data1):
-    LeIndexes = []
-    LeString = []
-    #ToDo: luego implementar si es el mismo dia
-    for index, curret_value in enumerate(extract_data1["SUMMARY"]):
-        index2 = index
-        for index2 in range(index2 + 1, len(extract_data1["SUMMARY"])):
-            compare_value = extract_data1["SUMMARY"][index2]
-            porcentaje = similar(curret_value, compare_value )
-            if  porcentaje > 0.84:
-                curret_value = curret_value.rstrip("\n")
-                compare_value =compare_value.rstrip("\n")
-                temp = [index, curret_value, index2,compare_value, (porcentaje*100)]
-                LeString.append(temp)
-                LeIndexes.append(index2)
-                
-    return LeIndexes, LeString
-    
-def ListaCopias(LeIndexes, extract_data1):
-    Ls = []
-    for i, n in enumerate(extract_data1["UID"]):
-        if i in LeIndexes:
-          Ls.append(n)
-    return Ls
 
-def Eliminar_Copias(register, Indices_Copia):
+def Capture_Clones(register):
+    Lol=[]
     for index, lines in enumerate(register):
-        for line in lines:
-            lineType = line.rpartition(':')[0]
-            if lineType == "UID":
-                lineID = line.rpartition(':')[2]
-                if lineID in reversed(Indices_Copia):
-                    register.pop((index - 1))
-                    
-    return register
+        val = lines["SUMMARY"] 
+        index2 = index + 1
+        tam = len(register)
+        if index2>tam: break
+        
+        for tempIndex in range(index2, (tam-1)):
+            if tempIndex>tam-1: break
+            
+            valorpendejo = register[tempIndex]["SUMMARY"]
+            porc = similar(val,  valorpendejo)
+            if porc > 0.84:
+                tempZz =register.pop(tempIndex)
+                
+                Lol.append([lines['UID'], val , tempZz['UID'], valorpendejo])
+                tam=tam-1
+                
+        
+    return register, Lol
+
 
 
 def CrearEventos(registers):
     cal = Calendar()
     for lines in registers:
-        Bool_Evento = True
-        event = Event() 
-        for line in lines:
-            lineType =  line.split(':')[0]
-            lineType.lower()
-            try:
-                valor = line.split(':')[1].split('\n')[0]
-                if lineType == "DESCRIPTION":
-                    valor = ':'.join([str(item) for item in line.split(':')[1:]]).rstrip("\n")
-                event[lineType] =  valor            
-            except:
-                event['DESCRIPTION'] += line[1:].rstrip("\n")
+        event = Event()         
+        for key in lines:
+            typo = key
+            event[typo] = lines[key].rstrip("\n")
+
         cal.add_component(event)
-        event = None
     return cal
+
+
+
+
+
 
 

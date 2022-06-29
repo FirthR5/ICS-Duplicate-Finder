@@ -10,7 +10,3 @@ def GuardarArchivo(cal):
     
    
     f.close()
-
-def GuardarIDs():
-    # Generar un .txt con los UIDs
-    pass
